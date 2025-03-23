@@ -2,8 +2,5 @@ pandas
 numpy
 scikit-learn
 matplotlib
-seaborn
-jupyter
 torch
-transformers
 tqdm
