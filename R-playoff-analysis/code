@@ -1,0 +1,117 @@
+# 載入必要套件
+install.packages("randomForest")
+install.packages("caret")
+install.packages("dplyr")
+install.packages("ggplot2")
+install.packages("tibble")
+library(tibble)
+library(randomForest)
+library(caret)
+library(dplyr)
+library(ggplot2)
+
+# 資料準備 - 移除 Pace
+features <- c(
+    "Age",     # 球隊平均年齡
+    "W",       # 勝場數
+    "L",       # 敗場數
+    "MOV",     # 場均得分差
+    "SOS",     # 賽程強度
+    "ORtg",    # 進攻效率
+    "DRtg",    # 防守效率
+    "TS",      # 真實命中率
+    "OeFG",    # 進攻有效命中率
+    "DeFG"     # 防守有效命中率
+)
+
+# 資料處理 - 使用 dplyr 管道運算子
+nbaAllTeam1 <- read.csv("nbaAllTeam1.csv")
+model_data <- nbaAllTeam1 %>%
+  select(all_of(c(features, "Playoffs"))) %>%
+  mutate(Playoffs = as.factor(Playoffs))
+
+# 資料切分
+set.seed(123)
+train_index <- createDataPartition(model_data$Playoffs, p = 0.7, list = FALSE)
+train_data <- model_data[train_index,]
+test_data <- model_data[-train_index,]
+
+# 建立模型
+rf_model <- randomForest(
+    Playoffs ~ .,
+    data = train_data,
+    ntree = 500,
+    mtry = sqrt(length(features)),
+    importance = TRUE
+)
+
+# 模型評估
+train_results <- tibble(
+    actual = train_data$Playoffs,
+    predicted = predict(rf_model, train_data),
+    prob = predict(rf_model, train_data, type = "prob")[,2]
+) %>%
+    mutate(accuracy = mean(actual == predicted))
+
+test_results <- tibble(
+    actual = test_data$Playoffs,
+    predicted = predict(rf_model, test_data),
+    prob = predict(rf_model, test_data, type = "prob")[,2]
+) %>%
+    mutate(accuracy = mean(actual == predicted))
+
+# 混淆矩陣
+conf_matrix <- confusionMatrix(test_results$predicted, test_data$Playoffs)
+
+# 特徵重要性分析
+importance_df <- importance(rf_model) %>%
+    as.data.frame() %>%
+    rownames_to_column("Feature") %>%
+    arrange(desc(MeanDecreaseGini))
+
+# 視覺化特徵重要性
+importance_plot <- ggplot(importance_df,
+    aes(x = reorder(Feature, MeanDecreaseGini),
+        y = MeanDecreaseGini)) +
+    geom_bar(stat = "identity", fill = "steelblue") +
+    coord_flip() +
+    theme_minimal() +
+    labs(
+        title = "Feature Importance in Predicting NBA Playoffs",
+        x = "Features",
+        y = "Importance (Mean Decrease Gini)"
+    )
+
+# 預測結果分析
+prediction_analysis <- test_results %>%
+    mutate(
+        correct = actual == predicted,
+        confidence = ifelse(predicted == 1, prob, 1 - prob)
+    ) %>%
+    summarise(
+        accuracy = mean(correct),
+        avg_confidence = mean(confidence),
+        high_conf_wrong = sum(!correct & confidence > 0.8)
+    )
+
+# 輸出結果
+cat("模型表現:\n")
+cat("訓練集準確率:", round(train_results$accuracy[1] * 100, 2), "%\n")
+cat("測試集準確率:", round(test_results$accuracy[1] * 100, 2), "%\n")
+
+cat("\n混淆矩陣:\n")
+print(conf_matrix$table)
+
+cat("\n特徵重要性排序:\n")
+print(importance_df)
+
+# 錯誤分析
+error_analysis <- test_results %>%
+    filter(actual != predicted) %>%
+    arrange(desc(prob))
+
+cat("\n預測錯誤的案例分析:\n")
+print(error_analysis)
+
+# 顯示特徵重要性視覺化
+print(importance_plot)
