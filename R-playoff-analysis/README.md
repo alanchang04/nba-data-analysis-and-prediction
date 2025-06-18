@@ -60,7 +60,7 @@ The target label is `Playoffs` (1 = Made Playoffs, 0 = Missed Playoffs)
 
 ### 📉 Importance Plot
 
-![Feature Importance](feature_importance_plot.png)
+![Feature Importance](output.png)
 
 ---
 
@@ -76,13 +76,13 @@ The target label is `Playoffs` (1 = Made Playoffs, 0 = Missed Playoffs)
 
 | File | Description |
 |------|-------------|
-| `nba_rf_playoff.R` | Full R script: preprocessing, modeling, evaluation |
-| `feature_importance_plot.png` | Plot showing variable importance |
-| `data.csv` (optional) | Cleaned dataset (if shareable) |
+| `code` | Full R script: preprocessing, modeling, evaluation |
+| `output.png` | Plot showing variable importance |
+
 
 ---
 
 ## 🧩 Connection to Python Model
 
-The features ranked here were used as **input variables** for deeper machine learning prediction in the Python-based match outcome module.
+The features ranked here were potentially used as **input variables** for deeper machine learning prediction in the Python-based match outcome module.
 
