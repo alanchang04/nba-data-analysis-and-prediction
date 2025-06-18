@@ -44,5 +44,4 @@ The project is divided into three main components:
 
 ---
 
-## 📂 Folder Structure (Example)
 
