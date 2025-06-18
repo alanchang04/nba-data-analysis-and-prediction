@@ -44,10 +44,9 @@ The dataset includes historical NBA matchup data across several seasons, each sa
 
 | Model | Accuracy | Notes |
 |-------|----------|-------|
-| Random Forest | ~XX% | High precision on regular season games |
-| Transformer   | ~XX% | Better generalization on playoff data |
+| Random Forest | ~59% | High precision on regular season games |
+| Transformer   | ~61% | Better generalization on playoff data |
 
-(*You can replace these with your actual results.*)
 
 ---
 
