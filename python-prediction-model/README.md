@@ -87,6 +87,7 @@ The dataset includes historical NBA matchup data across several seasons, each sa
 
 ## 👨‍💻 Author
 主要coding:張耀仁、方敬棠、吳長恩
-Zy | zy84946@gmail.com  
-[LinkedIn | Portfolio | GitHub]
+
+contact:張耀仁 | zy84946@gmail.com  
+
 
